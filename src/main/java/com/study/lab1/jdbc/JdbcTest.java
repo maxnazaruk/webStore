@@ -2,9 +2,8 @@ package com.study.lab1.jdbc;
 
 import java.sql.*;
 import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Random;
 
 public class JdbcTest {
     static String selectAllGoods = "SELECT * FROM goods;";
@@ -24,7 +23,7 @@ public class JdbcTest {
     private static void clearTable() throws SQLException {
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
             Statement statement = connection.createStatement();
-                statement.execute(clearTable);
+            statement.execute(clearTable);
         }
     }
 
@@ -34,6 +33,14 @@ public class JdbcTest {
             for (int i = 0; i < number; i++) {
                 statement.execute(goodsGenerator());
             }
+        }
+    }
+
+    public static void addProduct(String name, int price, Date date) throws SQLException {
+        id++;
+        try (Connection connection = DriverManager.getConnection(url, user, password)) {
+            Statement statement = connection.createStatement();
+            statement.execute("INSERT INTO goods VALUES (" + id + ", '" + name + "', " + price + ", NOW());");
         }
     }
 
@@ -49,25 +56,16 @@ public class JdbcTest {
         return conn;
     }
 
-    public static void showAllGoods() throws SQLException {
+    public static ResultSet showAllGoods() throws SQLException {
+        Statement statement;
         ResultSet resultSet;
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
-            Statement statement = connection.createStatement();
+            statement = connection.createStatement();
 
-             resultSet = statement.executeQuery(selectAllGoods);
+            resultSet = statement.executeQuery(selectAllGoods);
         }
 
-        while(resultSet.next()){
-            int id  = resultSet.getInt("id");
-            int price  = resultSet.getInt("price");
-            String name = resultSet.getString("name");
-            Date date = resultSet.getDate("creationdate");
-
-            System.out.print(id + ", " + name + ", " + price + ", " + date);
-            System.out.println();
-        }
-
-
+        return resultSet;
     }
 
     private static String goodsGenerator() {
@@ -76,9 +74,9 @@ public class JdbcTest {
         int nameLength = new Random().nextInt((8 - 3) + 1) + 3;
 
         for (int i = 0; i < nameLength; i++) {
-            if(i == 0){
+            if (i == 0) {
                 name.append((char) (new Random().nextInt((90 - 65) + 1) + 65));
-            }else{
+            } else {
                 name.append((char) (new Random().nextInt((122 - 97) + 1) + 97));
             }
         }
@@ -90,8 +88,8 @@ public class JdbcTest {
         String dateNow = sdf.format(now);
 
         String request = "INSERT INTO goods VALUES (" + id + ", '"
-                                                      + name.toString() + "', "
-                                                      + price + ", NOW());";
+                + name.toString() + "', "
+                + price + ", NOW());";
 
         id++;
 

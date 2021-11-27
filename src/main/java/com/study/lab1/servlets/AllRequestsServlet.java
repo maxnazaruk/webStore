@@ -1,12 +1,20 @@
 package com.study.lab1.servlets;
 
+import com.study.lab1.jdbc.JdbcTest;
 import com.study.lab1.templater.PageGenerator;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,9 +24,21 @@ public class AllRequestsServlet extends HttpServlet {
                       HttpServletResponse response) throws ServletException, IOException {
 
         Map<String, Object> pageVariables = createPageVariablesMap(request);
+
         pageVariables.put("message", "");
 
-        response.getWriter().println(PageGenerator.instance().getPage("page.html", pageVariables));
+        if(pageVariables.get("pathInfo").equals("/goods")){
+            try {
+                response.getWriter().println(PageGenerator.instance().getPage("goods.html", JdbcTest.showAllGoods()));
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }else if(pageVariables.get("pathInfo").equals("/goods/add")){
+            response.getWriter().println(PageGenerator.instance().getPage("add.html", pageVariables));
+        }else  {
+
+            response.getWriter().println(PageGenerator.instance().getPage("page.html", pageVariables));
+        }
 
         response.setContentType("text/html;charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
@@ -26,8 +46,8 @@ public class AllRequestsServlet extends HttpServlet {
     }
 
     public void doPost(HttpServletRequest request,
-                       HttpServletResponse response) throws ServletException, IOException {
-        Map<String, Object> pageVariables = createPageVariablesMap(request);
+                       HttpServletResponse response) throws IOException {
+        /*Map<String, Object> pageVariables = createPageVariablesMap(request);
 
         String message = request.getParameter("message");
 
@@ -40,7 +60,30 @@ public class AllRequestsServlet extends HttpServlet {
         }
         pageVariables.put("message", message == null ? "" : message);
 
-        response.getWriter().println(PageGenerator.instance().getPage("page.html", pageVariables));
+        response.getWriter().println(PageGenerator.instance().getPage("page.html", pageVariables));*/
+
+        String name = request.getParameter("name");
+        int price = Integer.parseInt(request.getParameter("price"));
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = null;
+        try {
+             date = formatter.parse(request.getParameter("date"));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            JdbcTest.addProduct(name, price, date);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        try {
+            response.getWriter().println(PageGenerator.instance().getPage("goods.html", JdbcTest.showAllGoods()));
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 
     private static Map<String, Object> createPageVariablesMap(HttpServletRequest request) {
