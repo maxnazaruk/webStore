@@ -21,23 +21,28 @@ import java.util.Map;
 public class AllRequestsServlet extends HttpServlet {
 
     public void doGet(HttpServletRequest request,
-                      HttpServletResponse response) throws ServletException, IOException {
+                      HttpServletResponse response) throws IOException {
 
         Map<String, Object> pageVariables = createPageVariablesMap(request);
 
         pageVariables.put("message", "");
+        try {
+            if (pageVariables.get("pathInfo").equals("/goods")) {
 
-        if(pageVariables.get("pathInfo").equals("/goods")){
-            try {
                 response.getWriter().println(PageGenerator.instance().getPage("goods.html", JdbcTest.showAllGoods()));
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
-        }else if(pageVariables.get("pathInfo").equals("/goods/add")){
-            response.getWriter().println(PageGenerator.instance().getPage("add.html", pageVariables));
-        }else  {
 
-            response.getWriter().println(PageGenerator.instance().getPage("page.html", pageVariables));
+            } else if (pageVariables.get("pathInfo").equals("/goods/add")) {
+                response.getWriter().println(PageGenerator.instance().getPage("add.html", pageVariables));
+            } else if (pageVariables.get("pathInfo").equals("/remove")) {
+                response.getWriter().println(PageGenerator.instance().getPage("remove.html", JdbcTest.showAllGoods()));
+            } else if (pageVariables.get("pathInfo").equals("/update")) {
+                response.getWriter().println(PageGenerator.instance().getPage("update.html", JdbcTest.showAllGoods()));
+            } else {
+
+                response.getWriter().println(PageGenerator.instance().getPage("page.html", pageVariables));
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
 
         response.setContentType("text/html;charset=utf-8");
@@ -46,29 +51,59 @@ public class AllRequestsServlet extends HttpServlet {
     }
 
     public void doPost(HttpServletRequest request,
-                       HttpServletResponse response) throws IOException {
-        /*Map<String, Object> pageVariables = createPageVariablesMap(request);
+                       HttpServletResponse response) {
+        Map<String, Object> pageVariables = createPageVariablesMap(request);
 
-        String message = request.getParameter("message");
-
-        response.setContentType("text/html;charset=utf-8");
-
-        if (message == null || message.isEmpty()) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        } else {
-            response.setStatus(HttpServletResponse.SC_OK);
+        if (pageVariables.get("pathInfo").equals("/add.html")) {
+            add(request, response);
+        } else if (pageVariables.get("pathInfo").equals("/remove.html")) {
+            remove(request, response);
+        } else if (pageVariables.get("pathInfo").equals("/update.html")) {
+            update(request, response);
         }
-        pageVariables.put("message", message == null ? "" : message);
 
-        response.getWriter().println(PageGenerator.instance().getPage("page.html", pageVariables));*/
+    }
 
+    private void remove(HttpServletRequest request, HttpServletResponse response) {
+        String remove = request.getParameter("remove");
+
+        try {
+            JdbcTest.removeById(remove);
+            try {
+                response.getWriter().println(PageGenerator.instance().getPage("remove.html", JdbcTest.showAllGoods()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    private void update(HttpServletRequest request, HttpServletResponse response) {
+        String id = request.getParameter("id");
+        String name = request.getParameter("name");
+        String price = request.getParameter("price");
+
+        try {
+            JdbcTest.update(id, name, price);
+            try {
+                response.getWriter().println(PageGenerator.instance().getPage("update.html", JdbcTest.showAllGoods()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    private void add(HttpServletRequest request, HttpServletResponse response) {
         String name = request.getParameter("name");
         int price = Integer.parseInt(request.getParameter("price"));
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         Date date = null;
         try {
-             date = formatter.parse(request.getParameter("date"));
+            date = formatter.parse(request.getParameter("date"));
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -81,7 +116,7 @@ public class AllRequestsServlet extends HttpServlet {
 
         try {
             response.getWriter().println(PageGenerator.instance().getPage("goods.html", JdbcTest.showAllGoods()));
-        } catch (SQLException throwables) {
+        } catch (SQLException | IOException throwables) {
             throwables.printStackTrace();
         }
     }
