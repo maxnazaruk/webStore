@@ -1,1 +1,1 @@
-web: gunicorn <Main>:<main>
+web: gunicorn Main:main
