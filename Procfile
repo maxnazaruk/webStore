@@ -1,1 +1,1 @@
-web: gunicorn Main:main
+web: java $JAVA_OPTS -cp target/classes:target/dependency/* com.study.lab1.main
