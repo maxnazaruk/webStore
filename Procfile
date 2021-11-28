@@ -1,1 +1,1 @@
-web: java -cp target/classes/:target/dependency/* src.main.java.com.study.lab1.main
+web: java -cp target/classes/:target/dependency/* com.study.lab1.main.Main
