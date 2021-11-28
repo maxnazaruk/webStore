@@ -9,54 +9,47 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-public class JdbcTest {
+public class JDBConnection {
     static String selectAllGoods = "SELECT * FROM goods;";
     static String clearTable = "DELETE FROM goods;";
     static String url = "jdbc:postgresql://localhost:5432/webstore";
     static String user = "user";
     static String password = "pswd";
 
-
-    public static void main(String[] args) throws SQLException, ParseException {
-        fullFilGoodTables(10);
-        //clearTable();
-        //showAllGoods();
-    }
-
-    private static void clearTable() throws SQLException {
+    public static void clearTable(String tableName) throws SQLException {
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
             Statement statement = connection.createStatement();
-            statement.execute(clearTable);
+            statement.execute("DELETE FROM " + tableName + ";");
         }
     }
 
-    private static void fullFilGoodTables(int number) throws SQLException, ParseException {
+    public static void fullFilGoodTables(String tableName, int number) throws SQLException, ParseException {
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
             Statement statement = connection.createStatement();
             for (int i = 0; i < number; i++) {
-                statement.execute(goodsGenerator());
+                statement.execute(goodsGenerator(tableName));
             }
         }
     }
 
-    public static void addProduct(String name, int price, java.util.Date date) throws SQLException {
+    public static void addProduct(String tableName, String name, int price, java.util.Date date) throws SQLException {
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
             Statement statement = connection.createStatement();
-            statement.execute("INSERT INTO goods (name, price, creationdate) VALUES ('" + name + "', " + price + ", NOW());");
+            statement.execute("INSERT INTO " + tableName + " (name, price, creationdate) VALUES ('" + name + "', " + price + ", NOW());");
         }
     }
 
-    public static void removeById(String id) throws SQLException {
+    public static void removeById(String tableName, String id) throws SQLException {
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
             Statement statement = connection.createStatement();
-            statement.executeUpdate("DELETE FROM goods WHERE id = " + id + ";");
+            statement.executeUpdate("DELETE FROM " + tableName + " WHERE id = " + id + ";");
         }
     }
 
-    public static void update(String id, String name, String price) throws SQLException {
+    public static void update(String tableName, String id, String name, String price) throws SQLException {
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
             Statement statement = connection.createStatement();
-            statement.executeUpdate("UPDATE goods SET name = '" + name + "', price = " + price + ", creationdate = NOW() WHERE id = " + id + ";");
+            statement.executeUpdate("UPDATE " + tableName + " SET name = '" + name + "', price = " + price + ", creationdate = NOW() WHERE id = " + id + ";");
         }
     }
 
@@ -64,7 +57,6 @@ public class JdbcTest {
         Connection conn = null;
         try {
             conn = DriverManager.getConnection(url, user, password);
-            System.out.println("Connected to the PostgreSQL server successfully.");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -72,19 +64,37 @@ public class JdbcTest {
         return conn;
     }
 
-    public static ResultSet showAllGoods() throws SQLException {
+    public static ResultSet showAllGoods(String tableName) throws SQLException {
         Statement statement;
         ResultSet resultSet;
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
             statement = connection.createStatement();
 
-            resultSet = statement.executeQuery(selectAllGoods);
+            resultSet = statement.executeQuery("SELECT * FROM " + tableName + ";");
         }
 
         return resultSet;
     }
 
-    private static String goodsGenerator() throws ParseException {
+    public static void createTestTable() throws SQLException {
+        Statement statement;
+        try (Connection connection = DriverManager.getConnection(url, user, password)) {
+            statement = connection.createStatement();
+
+            statement.executeUpdate("CREATE TABLE GoodsTest (id SERIAL, name varchar(255), price int, creationDate DATE);");
+        }
+    }
+
+    public static void dropTestTable() throws SQLException {
+        Statement statement;
+        try (Connection connection = DriverManager.getConnection(url, user, password)) {
+            statement = connection.createStatement();
+
+            statement.executeUpdate("DROP TABLE GoodsTest;");
+        }
+    }
+
+    private static String goodsGenerator(String tableName) throws ParseException {
 
         StringBuilder name = new StringBuilder("");
         int nameLength = new Random().nextInt((8 - 3) + 1) + 3;
@@ -105,11 +115,11 @@ public class JdbcTest {
 
         String sMonth = String.valueOf(month);
         String sDay = String.valueOf(day);
-        if(month < 10){
+        if (month < 10) {
             sMonth = "0" + month;
         }
 
-        if(day < 10){
+        if (day < 10) {
             sDay = "0" + day;
         }
 
@@ -121,7 +131,7 @@ public class JdbcTest {
         Date date = Date.valueOf(LocalDate.of(year, month, day));
 
 
-        String request = "INSERT INTO goods (name, price, creationdate) VALUES ('"
+        String request = "INSERT INTO " + tableName + " (name, price, creationdate) VALUES ('"
                 + name.toString() + "', "
                 + price + ", NOW());";
 

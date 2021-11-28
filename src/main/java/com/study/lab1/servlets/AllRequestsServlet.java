@@ -1,6 +1,6 @@
 package com.study.lab1.servlets;
 
-import com.study.lab1.jdbc.JdbcTest;
+import com.study.lab1.jdbc.JDBConnection;
 import com.study.lab1.templater.PageGenerator;
 
 import javax.servlet.ServletException;
@@ -24,19 +24,20 @@ public class AllRequestsServlet extends HttpServlet {
                       HttpServletResponse response) throws IOException {
 
         Map<String, Object> pageVariables = createPageVariablesMap(request);
+        String tableName = "goods";
 
         pageVariables.put("message", "");
         try {
             if (pageVariables.get("pathInfo").equals("/goods")) {
 
-                response.getWriter().println(PageGenerator.instance().getPage("goods.html", JdbcTest.showAllGoods()));
+                response.getWriter().println(PageGenerator.instance().getPage("goods.html", JDBConnection.showAllGoods(tableName)));
 
             } else if (pageVariables.get("pathInfo").equals("/goods/add")) {
                 response.getWriter().println(PageGenerator.instance().getPage("add.html", pageVariables));
             } else if (pageVariables.get("pathInfo").equals("/remove")) {
-                response.getWriter().println(PageGenerator.instance().getPage("remove.html", JdbcTest.showAllGoods()));
+                response.getWriter().println(PageGenerator.instance().getPage("remove.html", JDBConnection.showAllGoods(tableName)));
             } else if (pageVariables.get("pathInfo").equals("/update")) {
-                response.getWriter().println(PageGenerator.instance().getPage("update.html", JdbcTest.showAllGoods()));
+                response.getWriter().println(PageGenerator.instance().getPage("update.html", JDBConnection.showAllGoods(tableName)));
             } else {
 
                 response.getWriter().println(PageGenerator.instance().getPage("page.html", pageVariables));
@@ -54,6 +55,7 @@ public class AllRequestsServlet extends HttpServlet {
                        HttpServletResponse response) {
         Map<String, Object> pageVariables = createPageVariablesMap(request);
 
+
         if (pageVariables.get("pathInfo").equals("/add.html")) {
             add(request, response);
         } else if (pageVariables.get("pathInfo").equals("/remove.html")) {
@@ -66,11 +68,12 @@ public class AllRequestsServlet extends HttpServlet {
 
     private void remove(HttpServletRequest request, HttpServletResponse response) {
         String remove = request.getParameter("remove");
+        String tableName = "goods";
 
         try {
-            JdbcTest.removeById(remove);
+            JDBConnection.removeById(tableName, remove);
             try {
-                response.getWriter().println(PageGenerator.instance().getPage("remove.html", JdbcTest.showAllGoods()));
+                response.getWriter().println(PageGenerator.instance().getPage("remove.html", JDBConnection.showAllGoods(tableName)));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -83,11 +86,12 @@ public class AllRequestsServlet extends HttpServlet {
         String id = request.getParameter("id");
         String name = request.getParameter("name");
         String price = request.getParameter("price");
+        String tableName = "goods";
 
         try {
-            JdbcTest.update(id, name, price);
+            JDBConnection.update(tableName, id, name, price);
             try {
-                response.getWriter().println(PageGenerator.instance().getPage("update.html", JdbcTest.showAllGoods()));
+                response.getWriter().println(PageGenerator.instance().getPage("update.html", JDBConnection.showAllGoods(tableName)));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -99,6 +103,7 @@ public class AllRequestsServlet extends HttpServlet {
     private void add(HttpServletRequest request, HttpServletResponse response) {
         String name = request.getParameter("name");
         int price = Integer.parseInt(request.getParameter("price"));
+        String tableName = "goods";
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         Date date = null;
@@ -109,13 +114,13 @@ public class AllRequestsServlet extends HttpServlet {
         }
 
         try {
-            JdbcTest.addProduct(name, price, date);
+            JDBConnection.addProduct(tableName, name, price, date);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
 
         try {
-            response.getWriter().println(PageGenerator.instance().getPage("goods.html", JdbcTest.showAllGoods()));
+            response.getWriter().println(PageGenerator.instance().getPage("goods.html", JDBConnection.showAllGoods(tableName)));
         } catch (SQLException | IOException throwables) {
             throwables.printStackTrace();
         }
