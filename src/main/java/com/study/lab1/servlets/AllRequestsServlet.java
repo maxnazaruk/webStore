@@ -107,13 +107,8 @@ public class AllRequestsServlet extends HttpServlet {
         int price = Integer.parseInt(request.getParameter("price"));
         String tableName = "goods";
 
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = null;
-        try {
-            date = formatter.parse(request.getParameter("date"));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        String date = request.getParameter("date");
+        System.out.println(date);
 
         try {
             JDBConnection.addProduct(tableName, name, price, date);

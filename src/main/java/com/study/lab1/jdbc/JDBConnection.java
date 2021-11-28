@@ -37,10 +37,10 @@ public class JDBConnection {
         }
     }
 
-    public static void addProduct(String tableName, String name, int price, java.util.Date date) throws SQLException {
+    public static void addProduct(String tableName, String name, int price, String date) throws SQLException {
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
             Statement statement = connection.createStatement();
-            statement.execute("INSERT INTO " + tableName + " (name, price, creationdate) VALUES ('" + name + "', " + price + ", NOW());");
+            statement.execute("INSERT INTO " + tableName + " (name, price, creationdate) VALUES ('" + name + "', " + price + ", '" + date + "');");
         }
     }
 

@@ -25,7 +25,7 @@ public class JDBConnectionTest {
 
     @Test
     public void testAddRowToTable() throws SQLException {
-        JDBConnection.addProduct(tableName, "testproduct", 500, new Date());
+        JDBConnection.addProduct(tableName, "testproduct", 500, "2021-10-09");
 
         ResultSet resultSet = JDBConnection.showAllGoods(tableName);
 
@@ -35,14 +35,15 @@ public class JDBConnectionTest {
             result.append(resultSet.getInt("id"));
             result.append(resultSet.getString("name"));
             result.append(resultSet.getInt("price"));
+            result.append(resultSet.getString("creationdate"));
         }
 
-        assertEquals("1testproduct500", result.toString());
+        assertEquals("1testproduct5002021-10-09", result.toString());
     }
 
     @Test
     public void testUpdateRow() throws SQLException {
-        JDBConnection.addProduct(tableName, "testproduct", 500, new Date());
+        JDBConnection.addProduct(tableName, "testproduct", 500, "2019-05-05");
         JDBConnection.update(tableName, "1", "update", "100", "2020-10-10");
 
         ResultSet resultSet = JDBConnection.showAllGoods(tableName);
@@ -61,8 +62,8 @@ public class JDBConnectionTest {
 
     @Test
     public void testRemoveRow() throws SQLException {
-        JDBConnection.addProduct(tableName, "good1", 100, new Date());
-        JDBConnection.addProduct(tableName, "good2", 200, new Date());
+        JDBConnection.addProduct(tableName, "good1", 100, "2020-06-06");
+        JDBConnection.addProduct(tableName, "good2", 200, "2021-06-06");
         JDBConnection.removeById(tableName, "1");
 
         ResultSet resultSet = JDBConnection.showAllGoods(tableName);
@@ -73,15 +74,16 @@ public class JDBConnectionTest {
             result.append(resultSet.getInt("id"));
             result.append(resultSet.getString("name"));
             result.append(resultSet.getInt("price"));
+            result.append(resultSet.getString("creationdate"));
         }
 
-        assertEquals("2good2200", result.toString());
+        assertEquals("2good22002021-06-06", result.toString());
     }
 
     @Test
     public void testShowAll() throws SQLException {
-        JDBConnection.addProduct(tableName, "good1", 100, new Date());
-        JDBConnection.addProduct(tableName, "good2", 200, new Date());
+        JDBConnection.addProduct(tableName, "good1", 100, "2021-01-01");
+        JDBConnection.addProduct(tableName, "good2", 200, "2019-01-05");
 
         ResultSet resultSet = JDBConnection.showAllGoods(tableName);
 
@@ -91,9 +93,10 @@ public class JDBConnectionTest {
             result.append(resultSet.getInt("id"));
             result.append(resultSet.getString("name"));
             result.append(resultSet.getInt("price"));
+            result.append(resultSet.getString("creationdate"));
         }
 
-        assertEquals("1good11002good2200", result.toString());
+        assertEquals("1good11002021-01-012good22002019-01-05", result.toString());
     }
 
     @Test
