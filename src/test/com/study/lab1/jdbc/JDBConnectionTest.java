@@ -43,7 +43,7 @@ public class JDBConnectionTest {
     @Test
     public void testUpdateRow() throws SQLException {
         JDBConnection.addProduct(tableName, "testproduct", 500, new Date());
-        JDBConnection.update(tableName, "1", "update", "100");
+        JDBConnection.update(tableName, "1", "update", "100", "2020-10-10");
 
         ResultSet resultSet = JDBConnection.showAllGoods(tableName);
 
@@ -53,9 +53,10 @@ public class JDBConnectionTest {
             result.append(resultSet.getInt("id"));
             result.append(resultSet.getString("name"));
             result.append(resultSet.getInt("price"));
+            result.append(resultSet.getString("creationdate"));
         }
 
-        assertEquals("1update100", result.toString());
+        assertEquals("1update1002020-10-10", result.toString());
     }
 
     @Test

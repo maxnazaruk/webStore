@@ -16,6 +16,11 @@ public class JDBConnection {
     static String user = "user";
     static String password = "pswd";
 
+    public static void main(String[] args) throws SQLException, ParseException {
+        //clearTable("goods");
+        //fullFilGoodTables("goods", 10);
+    }
+
     public static void clearTable(String tableName) throws SQLException {
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
             Statement statement = connection.createStatement();
@@ -46,10 +51,10 @@ public class JDBConnection {
         }
     }
 
-    public static void update(String tableName, String id, String name, String price) throws SQLException {
+    public static void update(String tableName, String id, String name, String price, String date) throws SQLException {
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
             Statement statement = connection.createStatement();
-            statement.executeUpdate("UPDATE " + tableName + " SET name = '" + name + "', price = " + price + ", creationdate = NOW() WHERE id = " + id + ";");
+            statement.executeUpdate("UPDATE " + tableName + " SET name = '" + name + "', price = " + price + ", creationdate = '" + date + "' WHERE id = " + id + ";");
         }
     }
 
@@ -133,7 +138,7 @@ public class JDBConnection {
 
         String request = "INSERT INTO " + tableName + " (name, price, creationdate) VALUES ('"
                 + name.toString() + "', "
-                + price + ", NOW());";
+                + price + ", '" + from_date + "');";
 
         return request;
 

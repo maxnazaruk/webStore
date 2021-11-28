@@ -86,10 +86,12 @@ public class AllRequestsServlet extends HttpServlet {
         String id = request.getParameter("id");
         String name = request.getParameter("name");
         String price = request.getParameter("price");
+        String date = request.getParameter("date");
+        System.out.println(date);
         String tableName = "goods";
 
         try {
-            JDBConnection.update(tableName, id, name, price);
+            JDBConnection.update(tableName, id, name, price, date);
             try {
                 response.getWriter().println(PageGenerator.instance().getPage("update.html", JDBConnection.showAllGoods(tableName)));
             } catch (IOException e) {
