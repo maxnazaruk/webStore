@@ -1,1 +1,1 @@
-web: gunicorn Main:main
+web: gunicorn src\main\java\com\study\lab1\main\Main:main
