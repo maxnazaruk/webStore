@@ -24,26 +24,27 @@ public class AllRequestsServlet extends HttpServlet {
                       HttpServletResponse response) throws IOException {
 
         Map<String, Object> pageVariables = createPageVariablesMap(request);
+        try {
+            pageVariables.put("goods", JDBConnection.showAllGoods());
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
         String tableName = "goods";
 
         pageVariables.put("message", "");
-        try {
-            if (pageVariables.get("pathInfo").equals("/goods")) {
+        if (pageVariables.get("pathInfo").equals("/goods")) {
 
-                response.getWriter().println(PageGenerator.instance().getPage("goods.html", JDBConnection.showAllGoods(tableName)));
+            response.getWriter().println(PageGenerator.instance().getPage("goods.html", pageVariables));
 
-            } else if (pageVariables.get("pathInfo").equals("/goods/add")) {
-                response.getWriter().println(PageGenerator.instance().getPage("add.html", pageVariables));
-            } else if (pageVariables.get("pathInfo").equals("/remove")) {
-                response.getWriter().println(PageGenerator.instance().getPage("remove.html", JDBConnection.showAllGoods(tableName)));
-            } else if (pageVariables.get("pathInfo").equals("/update")) {
-                response.getWriter().println(PageGenerator.instance().getPage("update.html", JDBConnection.showAllGoods(tableName)));
-            } else {
+        } else if (pageVariables.get("pathInfo").equals("/goods/add")) {
+            response.getWriter().println(PageGenerator.instance().getPage("add.html", pageVariables));
+        } else if (pageVariables.get("pathInfo").equals("/remove")) {
+            response.getWriter().println(PageGenerator.instance().getPage("remove.html", pageVariables));
+        } else if (pageVariables.get("pathInfo").equals("/update")) {
+            response.getWriter().println(PageGenerator.instance().getPage("update.html", pageVariables));
+        } else {
 
-                response.getWriter().println(PageGenerator.instance().getPage("page.html", pageVariables));
-            }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            response.getWriter().println(PageGenerator.instance().getPage("page.html", pageVariables));
         }
 
         response.setContentType("text/html;charset=utf-8");
@@ -57,23 +58,33 @@ public class AllRequestsServlet extends HttpServlet {
 
 
         if (pageVariables.get("pathInfo").equals("/add.html")) {
-            add(request, response);
+            try {
+                add(request, response);
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
         } else if (pageVariables.get("pathInfo").equals("/remove.html")) {
-            remove(request, response);
+            try {
+                remove(request, response);
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
         } else if (pageVariables.get("pathInfo").equals("/update.html")) {
             update(request, response);
         }
 
     }
 
-    private void remove(HttpServletRequest request, HttpServletResponse response) {
+    private void remove(HttpServletRequest request, HttpServletResponse response) throws SQLException {
         String remove = request.getParameter("remove");
         String tableName = "goods";
+        Map<String, Object> pageVariables = createPageVariablesMap(request);
+        pageVariables.put("goods", JDBConnection.showAllGoods());
 
         try {
             JDBConnection.removeById(tableName, remove);
             try {
-                response.getWriter().println(PageGenerator.instance().getPage("remove.html", JDBConnection.showAllGoods(tableName)));
+                response.getWriter().println(PageGenerator.instance().getPage("remove.html", pageVariables));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -89,11 +100,17 @@ public class AllRequestsServlet extends HttpServlet {
         String date = request.getParameter("date");
         System.out.println(date);
         String tableName = "goods";
+        Map<String, Object> pageVariables = createPageVariablesMap(request);
+        try {
+            pageVariables.put("goods", JDBConnection.showAllGoods());
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
 
         try {
             JDBConnection.update(tableName, id, name, price, date);
             try {
-                response.getWriter().println(PageGenerator.instance().getPage("update.html", JDBConnection.showAllGoods(tableName)));
+                response.getWriter().println(PageGenerator.instance().getPage("update.html", pageVariables));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -102,13 +119,15 @@ public class AllRequestsServlet extends HttpServlet {
         }
     }
 
-    private void add(HttpServletRequest request, HttpServletResponse response) {
+    private void add(HttpServletRequest request, HttpServletResponse response) throws SQLException {
         String name = request.getParameter("name");
         int price = Integer.parseInt(request.getParameter("price"));
         String tableName = "goods";
 
         String date = request.getParameter("date");
-        System.out.println(date);
+
+        Map<String, Object> pageVariables = createPageVariablesMap(request);
+        pageVariables.put("goods", JDBConnection.showAllGoods());
 
         try {
             JDBConnection.addProduct(tableName, name, price, date);
@@ -117,8 +136,8 @@ public class AllRequestsServlet extends HttpServlet {
         }
 
         try {
-            response.getWriter().println(PageGenerator.instance().getPage("goods.html", JDBConnection.showAllGoods(tableName)));
-        } catch (SQLException | IOException throwables) {
+            response.getWriter().println(PageGenerator.instance().getPage("goods.html", pageVariables));
+        } catch (IOException throwables) {
             throwables.printStackTrace();
         }
     }

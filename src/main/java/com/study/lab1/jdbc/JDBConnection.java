@@ -1,5 +1,7 @@
 package com.study.lab1.jdbc;
 
+import com.study.lab1.goods.Goods;
+
 import java.sql.*;
 import java.sql.Date;
 import java.text.DateFormat;
@@ -18,7 +20,7 @@ public class JDBConnection {
 
     public static void main(String[] args) throws SQLException, ParseException {
         //clearTable("goods");
-        //fullFilGoodTables("goods", 10);
+        fullFilGoodTables("goods", 10);
     }
 
     public static void clearTable(String tableName) throws SQLException {
@@ -40,21 +42,28 @@ public class JDBConnection {
     public static void addProduct(String tableName, String name, int price, String date) throws SQLException {
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
             Statement statement = connection.createStatement();
-            statement.execute("INSERT INTO " + tableName + " (name, price, creationdate) VALUES ('" + name + "', " + price + ", '" + date + "');");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO " + tableName + " (name, price, creationdate) VALUES (?, ?, ?);");
+            preparedStatement.setString(1, name);
+            preparedStatement.setInt(2, price);
+            preparedStatement.setString(3, date);
         }
     }
 
     public static void removeById(String tableName, String id) throws SQLException {
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate("DELETE FROM " + tableName + " WHERE id = " + id + ";");
+            PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM " + tableName + " WHERE id = ?;");
+            preparedStatement.setString(1, id);
         }
     }
 
     public static void update(String tableName, String id, String name, String price, String date) throws SQLException {
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
             Statement statement = connection.createStatement();
-            statement.executeUpdate("UPDATE " + tableName + " SET name = '" + name + "', price = " + price + ", creationdate = '" + date + "' WHERE id = " + id + ";");
+            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE " + tableName + " SET name = ?, price = ?, creationdate = ? WHERE id = ?;");
+            preparedStatement.setString(1, name);
+            preparedStatement.setString(2, price);
+            preparedStatement.setString(3, date);
+            preparedStatement.setString(4, id);
         }
     }
 
@@ -79,6 +88,21 @@ public class JDBConnection {
         }
 
         return resultSet;
+    }
+
+    public static List<Goods> showAllGoods() throws SQLException {
+        Statement statement;
+        List<Goods> goods = new ArrayList<>();
+        ResultSet resultSet;
+        try (Connection connection = DriverManager.getConnection(url, user, password)) {
+            statement = connection.createStatement();
+
+            resultSet = statement.executeQuery("SELECT * FROM goods;");
+            while (resultSet.next()){
+                goods.add(new Goods(resultSet.getInt("id"), resultSet.getString("name"),resultSet.getInt("price"), resultSet.getTimestamp("creationdate").toLocalDateTime()));
+            }
+        }
+        return goods;
     }
 
     public static void createTestTable() throws SQLException {
