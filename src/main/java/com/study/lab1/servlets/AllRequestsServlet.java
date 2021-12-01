@@ -11,9 +11,12 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,27 +27,23 @@ public class AllRequestsServlet extends HttpServlet {
                       HttpServletResponse response) throws IOException {
 
         Map<String, Object> pageVariables = createPageVariablesMap(request);
-        try {
-            pageVariables.put("goods", JDBConnection.showAllGoods());
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-        String tableName = "goods";
 
         pageVariables.put("message", "");
-        if (pageVariables.get("pathInfo").equals("/goods")) {
+        try {
+            if (pageVariables.get("pathInfo").equals("/goods")) {
+                response.getWriter().println(PageGenerator.instance().getPage("goods.html", pageVariables));
+            } else if (pageVariables.get("pathInfo").equals("/goods/add")) {
+                response.getWriter().println(PageGenerator.instance().getPage("add.html", pageVariables));
+            } else if (pageVariables.get("pathInfo").equals("/remove")) {
+                response.getWriter().println(PageGenerator.instance().getPage("remove.html", pageVariables));
+            } else if (pageVariables.get("pathInfo").equals("/update")) {
+                response.getWriter().println(PageGenerator.instance().getPage("update.html", pageVariables));
+            } else {
 
-            response.getWriter().println(PageGenerator.instance().getPage("goods.html", pageVariables));
-
-        } else if (pageVariables.get("pathInfo").equals("/goods/add")) {
-            response.getWriter().println(PageGenerator.instance().getPage("add.html", pageVariables));
-        } else if (pageVariables.get("pathInfo").equals("/remove")) {
-            response.getWriter().println(PageGenerator.instance().getPage("remove.html", pageVariables));
-        } else if (pageVariables.get("pathInfo").equals("/update")) {
-            response.getWriter().println(PageGenerator.instance().getPage("update.html", pageVariables));
-        } else {
-
-            response.getWriter().println(PageGenerator.instance().getPage("page.html", pageVariables));
+                response.getWriter().println(PageGenerator.instance().getPage("page.html", pageVariables));
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
 
         response.setContentType("text/html;charset=utf-8");
@@ -98,7 +97,10 @@ public class AllRequestsServlet extends HttpServlet {
         String name = request.getParameter("name");
         String price = request.getParameter("price");
         String date = request.getParameter("date");
-        System.out.println(date);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate LD = LocalDate.parse(date, formatter);
+        LocalDateTime dateTime = LocalDateTime.of(LD, LocalDateTime.now().toLocalTime());
+
         String tableName = "goods";
         Map<String, Object> pageVariables = createPageVariablesMap(request);
         try {
@@ -108,7 +110,7 @@ public class AllRequestsServlet extends HttpServlet {
         }
 
         try {
-            JDBConnection.update(tableName, id, name, price, date);
+            JDBConnection.update(tableName, id, name, price, dateTime);
             try {
                 response.getWriter().println(PageGenerator.instance().getPage("update.html", pageVariables));
             } catch (IOException e) {
@@ -125,12 +127,15 @@ public class AllRequestsServlet extends HttpServlet {
         String tableName = "goods";
 
         String date = request.getParameter("date");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate LD = LocalDate.parse(date, formatter);
+        LocalDateTime dateTime = LocalDateTime.of(LD, LocalDateTime.now().toLocalTime());
 
         Map<String, Object> pageVariables = createPageVariablesMap(request);
-        pageVariables.put("goods", JDBConnection.showAllGoods());
+
 
         try {
-            JDBConnection.addProduct(tableName, name, price, date);
+            JDBConnection.addProduct(tableName, name, price, dateTime);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }

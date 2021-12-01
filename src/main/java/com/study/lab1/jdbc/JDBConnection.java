@@ -8,6 +8,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -20,7 +21,7 @@ public class JDBConnection {
 
     public static void main(String[] args) throws SQLException, ParseException {
         //clearTable("goods");
-        fullFilGoodTables("goods", 10);
+        //fullFilGoodTables("goods", 10);
     }
 
     public static void clearTable(String tableName) throws SQLException {
@@ -39,31 +40,32 @@ public class JDBConnection {
         }
     }
 
-    public static void addProduct(String tableName, String name, int price, String date) throws SQLException {
+    public static void addProduct(String tableName, String name, int price, LocalDateTime date) throws SQLException {
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
-            Statement statement = connection.createStatement();
             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO " + tableName + " (name, price, creationdate) VALUES (?, ?, ?);");
             preparedStatement.setString(1, name);
             preparedStatement.setInt(2, price);
-            preparedStatement.setString(3, date);
+            preparedStatement.setTimestamp(3, Timestamp.valueOf(date));
+            preparedStatement.execute();
         }
     }
 
     public static void removeById(String tableName, String id) throws SQLException {
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM " + tableName + " WHERE id = ?;");
-            preparedStatement.setString(1, id);
+            preparedStatement.setInt(1, Integer.parseInt(id));
+            preparedStatement.executeUpdate();
         }
     }
 
-    public static void update(String tableName, String id, String name, String price, String date) throws SQLException {
+    public static void update(String tableName, String id, String name, String price, LocalDateTime date) throws SQLException {
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
-            Statement statement = connection.createStatement();
             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE " + tableName + " SET name = ?, price = ?, creationdate = ? WHERE id = ?;");
             preparedStatement.setString(1, name);
-            preparedStatement.setString(2, price);
-            preparedStatement.setString(3, date);
-            preparedStatement.setString(4, id);
+            preparedStatement.setInt(2, Integer.parseInt(price));
+            preparedStatement.setTimestamp(3, Timestamp.valueOf(date));
+            preparedStatement.setInt(4, Integer.parseInt(id));
+            preparedStatement.executeUpdate();
         }
     }
 

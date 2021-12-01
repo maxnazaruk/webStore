@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,7 +27,12 @@ public class JDBConnectionTest {
 
     @Test
     public void testAddRowToTable() throws SQLException {
-        JDBConnection.addProduct(tableName, "testproduct", 500, "2021-10-09");
+        String str = "2021-10-09";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate LD = LocalDate.parse(str, formatter);
+        LocalDateTime dateTime = LocalDateTime.of(LD, LocalDateTime.now().toLocalTime());
+
+        JDBConnection.addProduct(tableName, "testproduct", 500, dateTime);
 
         ResultSet resultSet = JDBConnection.showAllGoods(tableName);
 
@@ -43,8 +50,16 @@ public class JDBConnectionTest {
 
     @Test
     public void testUpdateRow() throws SQLException {
-        JDBConnection.addProduct(tableName, "testproduct", 500, "2019-05-05");
-        JDBConnection.update(tableName, "1", "update", "100", "2020-10-10");
+        String str = "2019-05-05";
+        String str1 = "2020-10-10";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate LD = LocalDate.parse(str, formatter);
+        LocalDate LD1 = LocalDate.parse(str1, formatter);
+        LocalDateTime dateTime = LocalDateTime.of(LD, LocalDateTime.now().toLocalTime());
+        LocalDateTime dateTime1 = LocalDateTime.of(LD1, LocalDateTime.now().toLocalTime());
+
+        JDBConnection.addProduct(tableName, "testproduct", 500, dateTime);
+        JDBConnection.update(tableName, "1", "update", "100", dateTime1);
 
         ResultSet resultSet = JDBConnection.showAllGoods(tableName);
 
@@ -62,8 +77,16 @@ public class JDBConnectionTest {
 
     @Test
     public void testRemoveRow() throws SQLException {
-        JDBConnection.addProduct(tableName, "good1", 100, "2020-06-06");
-        JDBConnection.addProduct(tableName, "good2", 200, "2021-06-06");
+        String str = "2020-06-06";
+        String str1 = "2021-06-06";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate LD = LocalDate.parse(str, formatter);
+        LocalDate LD1 = LocalDate.parse(str1, formatter);
+        LocalDateTime dateTime = LocalDateTime.of(LD, LocalDateTime.now().toLocalTime());
+        LocalDateTime dateTime1 = LocalDateTime.of(LD1, LocalDateTime.now().toLocalTime());
+
+        JDBConnection.addProduct(tableName, "good1", 100, dateTime);
+        JDBConnection.addProduct(tableName, "good2", 200, dateTime1);
         JDBConnection.removeById(tableName, "1");
 
         ResultSet resultSet = JDBConnection.showAllGoods(tableName);
@@ -82,8 +105,16 @@ public class JDBConnectionTest {
 
     @Test
     public void testShowAll() throws SQLException {
-        JDBConnection.addProduct(tableName, "good1", 100, "2021-01-01");
-        JDBConnection.addProduct(tableName, "good2", 200, "2019-01-05");
+        String str = "2021-01-01";
+        String str1 = "2019-01-05";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate LD = LocalDate.parse(str, formatter);
+        LocalDate LD1 = LocalDate.parse(str1, formatter);
+        LocalDateTime dateTime = LocalDateTime.of(LD, LocalDateTime.now().toLocalTime());
+        LocalDateTime dateTime1 = LocalDateTime.of(LD1, LocalDateTime.now().toLocalTime());
+
+        JDBConnection.addProduct(tableName, "good1", 100, dateTime);
+        JDBConnection.addProduct(tableName, "good2", 200, dateTime1);
 
         ResultSet resultSet = JDBConnection.showAllGoods(tableName);
 

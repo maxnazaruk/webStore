@@ -1,5 +1,6 @@
 package com.study.lab1.templater;
 
+import com.study.lab1.jdbc.JDBConnection;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -23,8 +24,9 @@ public class PageGenerator {
         return pageGenerator;
     }
 
-    public String getPage(String filename, Map<String, Object> data) {
+    public String getPage(String filename, Map<String, Object> data) throws SQLException {
         Writer stream = new StringWriter();
+        data.put("goods", JDBConnection.showAllGoods());
         try {
             Template template = cfg.getTemplate(HTML_DIR + File.separator + filename);
             template.process(data, stream);
