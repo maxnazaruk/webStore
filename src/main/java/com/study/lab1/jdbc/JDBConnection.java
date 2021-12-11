@@ -1,172 +1,64 @@
 package com.study.lab1.jdbc;
 
-import com.study.lab1.goods.Goods;
+import com.study.lab1.entity.Goods;
+import com.study.lab1.jdbc.mapper.GoodMapper;
+import org.postgresql.util.PSQLException;
 
 import java.sql.*;
-import java.sql.Date;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class JDBConnection {
-    static String selectAllGoods = "SELECT * FROM goods;";
-    static String clearTable = "DELETE FROM goods;";
-    static String url = "jdbc:postgresql://localhost:5432/webstore";
-    static String user = "user";
-    static String password = "pswd";
+    private static final GoodMapper GOOD_MAPPER = new GoodMapper();
+    private static final String SELECT_ALL = "SELECT id, name, price, date FROM goods";
+    private static final String INSERT_INTO = "INSERT INTO goods (name, price, date) VALUES (?, ?, ?);";
+    private static final String UPDATE = "UPDATE goods SET name = ?, price = ?, date = ? WHERE id = ?;";
+    private static final String REMOVE = "DELETE FROM goods WHERE id = ?;";
 
-    public static void main(String[] args) throws SQLException, ParseException {
-        //clearTable("goods");
-        //fullFilGoodTables("goods", 10);
+    private Connection getConnection() throws SQLException, PSQLException {
+        return DriverManager.getConnection("jdbc:postgresql://localhost:5432/webstore",
+                "user", "pswd");
     }
 
-    public static void clearTable(String tableName) throws SQLException {
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
-            Statement statement = connection.createStatement();
-            statement.execute("DELETE FROM " + tableName + ";");
-        }
-    }
-
-    public static void fullFilGoodTables(String tableName, int number) throws SQLException, ParseException {
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
-            Statement statement = connection.createStatement();
-            for (int i = 0; i < number; i++) {
-                statement.execute(goodsGenerator(tableName));
-            }
-        }
-    }
-
-    public static void addProduct(String tableName, String name, int price, LocalDateTime date) throws SQLException {
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO " + tableName + " (name, price, creationdate) VALUES (?, ?, ?);");
-            preparedStatement.setString(1, name);
-            preparedStatement.setInt(2, price);
-            preparedStatement.setTimestamp(3, Timestamp.valueOf(date));
-            preparedStatement.execute();
-        }
-    }
-
-    public static void removeById(String tableName, String id) throws SQLException {
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
-            PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM " + tableName + " WHERE id = ?;");
-            preparedStatement.setInt(1, Integer.parseInt(id));
+    public void addProduct(Goods good) throws SQLException {
+        try (Connection connection = getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareStatement(INSERT_INTO);
+            preparedStatement.setString(1, good.getName());
+            preparedStatement.setInt(2, good.getPrice());
+            preparedStatement.setTimestamp(3, Timestamp.valueOf(good.getDate()));
             preparedStatement.executeUpdate();
         }
     }
 
-    public static void update(String tableName, String id, String name, String price, LocalDateTime date) throws SQLException {
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
-            PreparedStatement preparedStatement = connection.prepareStatement("UPDATE " + tableName + " SET name = ?, price = ?, creationdate = ? WHERE id = ?;");
-            preparedStatement.setString(1, name);
-            preparedStatement.setInt(2, Integer.parseInt(price));
-            preparedStatement.setTimestamp(3, Timestamp.valueOf(date));
-            preparedStatement.setInt(4, Integer.parseInt(id));
+    public List<Goods> findAll() throws SQLException {
+        try (Connection connection = getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+
+            List<Goods> goods = new ArrayList<>();
+            while (resultSet.next()) {
+                Goods good = GOOD_MAPPER.mapResultSet(resultSet);
+                goods.add(good);
+            }
+            return goods;
+        }
+    }
+
+    public void update(Goods good, int id) throws SQLException {
+        try (Connection connection = getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareStatement(UPDATE);
+            preparedStatement.setString(1, good.getName());
+            preparedStatement.setInt(2, good.getPrice());
+            preparedStatement.setTimestamp(3, Timestamp.valueOf(good.getDate()));
+            preparedStatement.setInt(4, id);
             preparedStatement.executeUpdate();
         }
     }
 
-    public static Connection connect() {
-        Connection conn = null;
-        try {
-            conn = DriverManager.getConnection(url, user, password);
-        } catch (SQLException e) {
-            e.printStackTrace();
+    public void remove(int id) throws SQLException {
+        try (Connection connection = getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareStatement(REMOVE);
+            preparedStatement.setInt(1, id);
+            preparedStatement.executeUpdate();
         }
-
-        return conn;
-    }
-
-    public static ResultSet showAllGoods(String tableName) throws SQLException {
-        Statement statement;
-        ResultSet resultSet;
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
-            statement = connection.createStatement();
-
-            resultSet = statement.executeQuery("SELECT * FROM " + tableName + ";");
-        }
-
-        return resultSet;
-    }
-
-    public static List<Goods> showAllGoods() throws SQLException {
-        Statement statement;
-        List<Goods> goods = new ArrayList<>();
-        ResultSet resultSet;
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
-            statement = connection.createStatement();
-
-            resultSet = statement.executeQuery("SELECT * FROM goods;");
-            while (resultSet.next()){
-                goods.add(new Goods(resultSet.getInt("id"), resultSet.getString("name"),resultSet.getInt("price"), resultSet.getTimestamp("creationdate").toLocalDateTime()));
-            }
-        }
-        return goods;
-    }
-
-    public static void createTestTable() throws SQLException {
-        Statement statement;
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
-            statement = connection.createStatement();
-
-            statement.executeUpdate("CREATE TABLE GoodsTest (id SERIAL, name varchar(255), price int, creationDate DATE);");
-        }
-    }
-
-    public static void dropTestTable() throws SQLException {
-        Statement statement;
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
-            statement = connection.createStatement();
-
-            statement.executeUpdate("DROP TABLE GoodsTest;");
-        }
-    }
-
-    private static String goodsGenerator(String tableName) throws ParseException {
-
-        StringBuilder name = new StringBuilder("");
-        int nameLength = new Random().nextInt((8 - 3) + 1) + 3;
-
-        for (int i = 0; i < nameLength; i++) {
-            if (i == 0) {
-                name.append((char) (new Random().nextInt((90 - 65) + 1) + 65));
-            } else {
-                name.append((char) (new Random().nextInt((122 - 97) + 1) + 97));
-            }
-        }
-
-        int price = new Random().nextInt((1999 - 99) + 1) + 99;
-
-        int year = new Random().nextInt((2021 - 2018) + 1) + 2018;
-        int month = new Random().nextInt((12 - 1) + 1) + 1;
-        int day = new Random().nextInt((28 - 1) + 1) + 1;
-
-        String sMonth = String.valueOf(month);
-        String sDay = String.valueOf(day);
-        if (month < 10) {
-            sMonth = "0" + month;
-        }
-
-        if (day < 10) {
-            sDay = "0" + day;
-        }
-
-        String from_date = year + "-" + sMonth + "-" + sDay;
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate localDate = LocalDate.parse(from_date, formatter);
-
-        Date date = Date.valueOf(LocalDate.of(year, month, day));
-
-
-        String request = "INSERT INTO " + tableName + " (name, price, creationdate) VALUES ('"
-                + name.toString() + "', "
-                + price + ", '" + from_date + "');";
-
-        return request;
-
     }
 }

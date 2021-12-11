@@ -1,13 +1,10 @@
 package com.study.lab1.templater;
 
-import com.study.lab1.jdbc.JDBConnection;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
@@ -26,7 +23,6 @@ public class PageGenerator {
 
     public String getPage(String filename, Map<String, Object> data) throws SQLException {
         Writer stream = new StringWriter();
-        data.put("goods", JDBConnection.showAllGoods());
         try {
             Template template = cfg.getTemplate(HTML_DIR + File.separator + filename);
             template.process(data, stream);
