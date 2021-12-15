@@ -4,7 +4,6 @@ import com.study.lab1.service.UserVerificationService;
 import com.study.lab1.templater.PageGenerator;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,18 +22,14 @@ public class AllRequestsServlet extends HttpServlet {
     }
 
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        if(userVerificationService.tokenVerification(req.getCookies(), userTokens)) {
             PageGenerator pageGenerator = PageGenerator.instance();
             HashMap<String, Object> parameters = new HashMap<>();
             try {
-                String page = pageGenerator.getPage("page.html", parameters);
+                String page = pageGenerator.getPage("templates/page.html", parameters);
                 resp.getWriter().write(page);
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
-        }else{
-            resp.sendRedirect("/login");
-        }
     }
 
     @Override

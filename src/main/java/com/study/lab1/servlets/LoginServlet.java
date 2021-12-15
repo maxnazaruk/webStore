@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -28,7 +27,7 @@ public class LoginServlet extends HttpServlet {
         PageGenerator pageGenerator = PageGenerator.instance();
         String page = null;
         try {
-            page = pageGenerator.getPage("login.html", Collections.EMPTY_MAP);
+            page = pageGenerator.getPage("templates/login.html", Collections.EMPTY_MAP);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -66,7 +65,7 @@ public class LoginServlet extends HttpServlet {
             String incorrectPass = " Password is incorrect";
             parametrs.put("error", incorrectPass);
             try {
-                String page = pageGenerator.getPage("login.html", parametrs);
+                String page = pageGenerator.getPage("templates/login.html", parametrs);
                 resp.getWriter().write(page);
             } catch (SQLException throwables) {
                 throwables.printStackTrace();

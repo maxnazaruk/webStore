@@ -5,14 +5,17 @@ import com.study.lab1.jdbc.JdbcUserDao;
 import com.study.lab1.service.GoodsService;
 import com.study.lab1.service.UserVerificationService;
 import com.study.lab1.servlets.*;
+import com.study.lab1.servlets.filter.SecurityFilter;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
+import jakarta.servlet.*;
+
+import javax.servlet.DispatcherType;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 public class Main {
@@ -27,7 +30,7 @@ public class Main {
 
         AllRequestsServlet allRequestsServlet = new AllRequestsServlet(userTokens, userVerificationService);
 
-        AddGoodServlet addGoodServlet = new AddGoodServlet(goodsService, userTokens, userVerificationService);
+        AddGoodServlet addGoodServlet = new AddGoodServlet(goodsService);
         RemoveGoodServlet removeGoodServlet = new RemoveGoodServlet(goodsService, userTokens, userVerificationService);
         UpdateGoodServlet updateGoodServlet = new UpdateGoodServlet(goodsService, userTokens, userVerificationService);
         GoodsServlet goodsServlet = new GoodsServlet(goodsService, userTokens, userVerificationService);
@@ -39,6 +42,7 @@ public class Main {
         context.addServlet(new ServletHolder(updateGoodServlet), "/update");
         context.addServlet(new ServletHolder(goodsServlet), "/goods");
         context.addServlet(new ServletHolder(new LoginServlet(userTokens, userVerificationService)), "/login");
+        context.addFilter(new FilterHolder(new SecurityFilter(userTokens, userVerificationService)), "/*", (EnumSet.of(DispatcherType.REQUEST)));
 
         Server server = new Server(8080);
         server.setHandler(context);

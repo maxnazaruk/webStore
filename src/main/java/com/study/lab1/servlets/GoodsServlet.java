@@ -28,19 +28,15 @@ public class GoodsServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if(userVerificationService.tokenVerification(req.getCookies(), userTokens)) {
             PageGenerator pageGenerator = PageGenerator.instance();
             Map<String, Object> parametrs = new HashMap<>();
             try {
                 List<Goods> goods = goodsService.findAll();
                 parametrs.put("goods", goods);
-                String page = pageGenerator.getPage("goods.html", parametrs);
+                String page = pageGenerator.getPage("templates/goods.html", parametrs);
                 resp.getWriter().write(page);
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
-        }else{
-            resp.sendRedirect("/login");
-        }
     }
 }
