@@ -1,1 +1,1 @@
-<web>java -cp target/classes/:target/dependency/* com.study.lab1.main.Main</web>
+web: java $JAVA_OPTS -jar os-jar-with-dependencies.jar  $JAR_OPTS
