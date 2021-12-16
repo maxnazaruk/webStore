@@ -12,9 +12,7 @@ import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-//import jakarta.servlet.*;
 
-import javax.servlet.*;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
