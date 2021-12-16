@@ -4,11 +4,12 @@ import com.study.lab1.entity.Goods;
 import com.study.lab1.service.GoodsService;
 import com.study.lab1.service.UserVerificationService;
 import com.study.lab1.templater.PageGenerator;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -17,13 +18,9 @@ import java.util.Map;
 
 public class RemoveGoodServlet extends HttpServlet {
     private GoodsService goodsService;
-    private List<String> userTokens;
-    private UserVerificationService userVerificationService;
 
-    public RemoveGoodServlet(GoodsService goodsService, List<String> userTokens, UserVerificationService userVerificationService) {
+    public RemoveGoodServlet(GoodsService goodsService) {
         this.goodsService = goodsService;
-        this.userTokens = userTokens;
-        this.userVerificationService = userVerificationService;
     }
 
     @Override

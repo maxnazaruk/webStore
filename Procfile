@@ -1,1 +1,1 @@
-web: java $JAVA_OPTS -jar os-jar-with-dependencies.jar  $JAR_OPTS
+web: java -jar target/os-jar-with-dependencies.jar

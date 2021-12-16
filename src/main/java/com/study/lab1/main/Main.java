@@ -6,14 +6,15 @@ import com.study.lab1.service.GoodsService;
 import com.study.lab1.service.UserVerificationService;
 import com.study.lab1.servlets.*;
 import com.study.lab1.servlets.filter.SecurityFilter;
+import jakarta.servlet.DispatcherType;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-import jakarta.servlet.*;
+//import jakarta.servlet.*;
 
-import javax.servlet.DispatcherType;
+import javax.servlet.*;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -31,13 +32,13 @@ public class Main {
         AllRequestsServlet allRequestsServlet = new AllRequestsServlet(userTokens, userVerificationService);
 
         AddGoodServlet addGoodServlet = new AddGoodServlet(goodsService);
-        RemoveGoodServlet removeGoodServlet = new RemoveGoodServlet(goodsService, userTokens, userVerificationService);
+        RemoveGoodServlet removeGoodServlet = new RemoveGoodServlet(goodsService);
         UpdateGoodServlet updateGoodServlet = new UpdateGoodServlet(goodsService, userTokens, userVerificationService);
         GoodsServlet goodsServlet = new GoodsServlet(goodsService, userTokens, userVerificationService);
 
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        context.addServlet(new ServletHolder(allRequestsServlet), "/");
-        context.addServlet(new ServletHolder(addGoodServlet), "/add");
+        context.addServlet(new ServletHolder( allRequestsServlet), "/");
+        context.addServlet(new ServletHolder( addGoodServlet), "/add");
         context.addServlet(new ServletHolder(removeGoodServlet), "/remove");
         context.addServlet(new ServletHolder(updateGoodServlet), "/update");
         context.addServlet(new ServletHolder(goodsServlet), "/goods");

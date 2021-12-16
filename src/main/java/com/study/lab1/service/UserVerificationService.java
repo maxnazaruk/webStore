@@ -3,8 +3,9 @@ package com.study.lab1.service;
 import com.study.lab1.entity.User;
 import com.study.lab1.jdbc.JDBConnection;
 import com.study.lab1.jdbc.JdbcUserDao;
+import jakarta.servlet.http.Cookie;
 
-import javax.servlet.http.Cookie;
+
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
