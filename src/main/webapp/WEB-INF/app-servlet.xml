@@ -1,0 +1,37 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+<context:component-scan base-package="com.study"/>
+
+    <mvc:annotation-driven/>
+
+    <bean id="goodService" class="com.study.lab1.service.GoodsService">
+        <constructor-arg ref="goodsDao"/>
+    </bean>
+
+    <bean id="goodsDao" class="com.study.lab1.jdbc.JDBConnection"/>
+
+    <bean id="userService" class="com.study.lab1.service.UserVerificationService">
+        <constructor-arg ref="userDao"/>
+    </bean>
+
+    <bean id="userDao" class="com.study.lab1.jdbc.JdbcUserDao"/>
+
+    <bean id="freemarkerConfig" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+        <property name="templateLoaderPath" value="classpath:templates"/>
+    </bean>
+
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+        <property name="prefix" value=""/>
+        <property name="suffix" value=".html"/>
+    </bean>
+</beans>
