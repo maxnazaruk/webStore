@@ -6,21 +6,10 @@ pipeline {
                 git 'https://github.com/maxnazaruk/webStore.git'
             }
         }
-        stage('Maven Test'){
+        stage('create docker'){
             steps{
-                echo "test"
+               sh 'docker build -t dockerName/springboot:latest .'
             }
-        }
-        stage('Maven build'){
-            steps{
-               echo "build"
-            }
-        }
-        
-        stage('Maven deploy'){
-            steps{
-                echo "deploy"
-            }
-        }
+        }     
     }
 }
