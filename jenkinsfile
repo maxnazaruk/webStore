@@ -8,7 +8,7 @@ pipeline {
         }
         stage('create docker'){
             steps{
-               sh 'docker build -t dockerName/springboot:latest .'
+               bat 'docker build -t dockerName/springboot:latest .'
             }
         }     
     }
